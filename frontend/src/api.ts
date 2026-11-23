@@ -6,9 +6,10 @@ export interface User {
   role: "user" | "admin";
 }
 
-interface Credentials {
+export interface RegisteredUser {
   email: string;
-  password: string;
+  role: User["role"];
+  registeredOn: string;
 }
 
 async function request<T>(
@@ -69,7 +70,17 @@ export function getCurrentUser() {
 
 export function logout() {
   return request<{ message: string }>("/api/auth/logout", {});
-}export interface Draft {
+}
+
+export function getAdminUsers() {
+  return request<{ users: RegisteredUser[] }>("/api/admin/users");
+}
+
+export function getAdminUsage() {
+  return request<{ totalRequests: number }>("/api/admin/usage");
+}
+
+export interface Draft {
   id: string;
   title: string;
   body: string;

@@ -1,4 +1,5 @@
 import "./style.css";
+import { loadAdminDashboard, resetAdminDashboard } from "./admin";
 import { ApiError, getCurrentUser, login, logout, register } from "./api";
 import type { User } from "./api";
 
@@ -47,11 +48,16 @@ function setActiveTab(tabName: "assistant" | "drafts" | "admin") {
   for (const [name, panel] of Object.entries(tabPanels)) {
     panel.hidden = name !== tabName;
   }
+
+  if (tabName === "admin") {
+    void loadAdminDashboard();
+  }
 }
 
 function showForm(nextMode: "login" | "register", message = "") {
   mode = nextMode;
   currentUser = null;
+  resetAdminDashboard();
   const registering = mode === "register";
 
   workspaceView.hidden = true;
@@ -96,7 +102,7 @@ function showWorkspace(user: User) {
   adminNavButton.hidden = user.role !== "admin";
   passwordInput.value = "";
 
-  setActiveTab("assistant");
+  setActiveTab(user.role === "admin" ? "admin" : "assistant");
   workspaceIntro.after(status);
   status.textContent = "";
 }

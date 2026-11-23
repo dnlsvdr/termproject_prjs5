@@ -5,6 +5,7 @@ import cors from "cors";
 import helmet from "helmet";
 import type { Pool } from "mysql2/promise";
 import type { Config } from "./config.js";
+import { createAdminRouter } from "./admin.js";
 import { createAuthRouter } from "./auth.js";
 import { createQuestionsRouter } from "./questions.js";
 
@@ -71,13 +72,14 @@ export async function createApp(pool: Pool, config: Config) {
 
   const auth = await createAuthRouter(pool, config);
 
-app.use("/api/auth", auth.router);
+  app.use("/api/auth", auth.router);
+  app.use("/api/admin", auth.authenticate, createAdminRouter(pool));
 
-app.use(
-  "/api/questions",
-  auth.authenticate,
-  createQuestionsRouter(pool),
-);
+  app.use(
+    "/api/questions",
+    auth.authenticate,
+    createQuestionsRouter(pool),
+  );
 
   app.use((_req, res) => {
     res.status(404).json({ error: "Endpoint not found." });
