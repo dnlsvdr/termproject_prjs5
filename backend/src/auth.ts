@@ -36,7 +36,7 @@ const loginSchema = credentialsSchema.extend({
   password: z.string().min(1).max(128),
 });
 
-const hashPassword = (password: string) =>
+export const hashPassword = (password: string) =>
   argon2.hash(password, {
     type: argon2.argon2id,
     memoryCost: 19456,

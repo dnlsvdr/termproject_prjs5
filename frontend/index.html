@@ -162,9 +162,40 @@
 
           <section id="tab-admin" class="panel workspace-panel" hidden>
             <h2>Administrator Dashboard</h2>
-            <p class="muted">
-              Registered users and API usage metrics will appear here.
-            </p>
+            <div class="admin-usage">
+              <h3>API usage</h3>
+              <p id="admin-usage-total" role="status"></p>
+            </div>
+
+            <h3>Registered users</h3>
+            <div class="admin-filters">
+              <div>
+                <label for="admin-email-search">Search by email</label>
+                <input id="admin-email-search" type="search" autocomplete="off" />
+              </div>
+              <div>
+                <label for="admin-role-filter">Role</label>
+                <select id="admin-role-filter">
+                  <option value="">All roles</option>
+                  <option value="user">User</option>
+                  <option value="admin">Administrator</option>
+                </select>
+              </div>
+              <button type="button" id="admin-refresh" class="secondary">Refresh</button>
+            </div>
+            <p id="admin-users-status" role="status"></p>
+            <div id="admin-users-results" class="admin-table-wrap" hidden>
+              <table aria-label="Registered users">
+                <thead>
+                  <tr>
+                    <th scope="col">Email</th>
+                    <th scope="col">Role</th>
+                    <th scope="col">Registered on</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-users"></tbody>
+              </table>
+            </div>
           </section>
         </div>
       </section>

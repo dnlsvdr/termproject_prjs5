@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS api_usage (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id CHAR(36) NOT NULL,
+  endpoint VARCHAR(255) NOT NULL,
+  status_code SMALLINT UNSIGNED NOT NULL,
+  requested_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_api_usage_user_time (user_id, requested_at),
+  FOREIGN KEY (user_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

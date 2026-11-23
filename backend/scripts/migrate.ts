@@ -6,6 +6,10 @@ import { createPool } from "../src/db.js";
 
 const config = readConfig();
 const pool = createPool(config);
+const migrations = [
+  { version: "001_initial", filename: "initial.sql" },
+  { version: "002_api_usage", filename: "api-usage.sql" },
+];
 
 async function migrate() {
   const connection = await pool.getConnection();
@@ -41,51 +45,31 @@ async function migrate() {
       )
     `);
 
-    const version = "001_initial";
+    const [applied] = await connection.query<RowDataPacket[]>(
+      "SELECT version FROM schema_migrations",
+    );
+    const appliedVersions = new Set(applied.map((row) => row.version));
+    const pending = migrations.filter(({ version }) => !appliedVersions.has(version));
 
-    const [existing] =
-      await connection.execute<RowDataPacket[]>(
-        `
-          SELECT version
-          FROM schema_migrations
-          WHERE version = ?
-        `,
-        [version]
+    for (const { version, filename } of pending) {
+      const sql = await readFile(new URL(`../sql/${filename}`, import.meta.url), "utf8");
+
+      // Each migration contains plain CREATE TABLE statements.
+      const statements = sql.split(";").map((statement) => statement.trim()).filter(Boolean);
+      for (const statement of statements) {
+        await connection.query(statement);
+      }
+
+      await connection.execute(
+        "INSERT INTO schema_migrations (version) VALUES (?)",
+        [version],
       );
+      console.log(`Applied database migration: ${version}`);
+    }
 
-    if (existing.length > 0) {
+    if (pending.length === 0) {
       console.log("Database schema is up to date.");
-      return;
     }
-
-    const sql = await readFile(
-      new URL(
-        "../sql/initial.sql",
-        import.meta.url
-      ),
-      "utf8"
-    );
-
-    // This initial schema contains plain CREATE TABLE
-    // statements, with no stored procedures.
-    const statements = sql
-      .split(";")
-      .map((statement) => statement.trim())
-      .filter(Boolean);
-
-    for (const statement of statements) {
-      await connection.query(statement);
-    }
-
-    await connection.execute(
-      `
-        INSERT INTO schema_migrations (version)
-        VALUES (?)
-      `,
-      [version]
-    );
-
-    console.log("Applied database migration: 001_initial");
   } finally {
     if (lockAcquired) {
       await connection.query(
