@@ -17,7 +17,6 @@ const form = document.querySelector<HTMLFormElement>("#auth-form")!;
 const title = document.querySelector<HTMLElement>("#form-title")!;
 const emailInput = document.querySelector<HTMLInputElement>("#email")!;
 const passwordInput = document.querySelector<HTMLInputElement>("#password")!;
-const passwordHint = document.querySelector<HTMLElement>("#password-hint")!;
 const submitButton = document.querySelector<HTMLButtonElement>("#submit-button")!;
 const switchButton = document.querySelector<HTMLButtonElement>("#switch-mode")!;
 const logoutButton = document.querySelector<HTMLButtonElement>("#logout-button")!;
@@ -167,15 +166,10 @@ function showForm(nextMode: "login" | "register", message = "") {
   passwordInput.value = "";
   passwordInput.minLength = registering ? 12 : 1;
   passwordInput.autocomplete = registering ? "new-password" : "current-password";
-  passwordHint.hidden = !registering;
 
-  if (registering) {
-    passwordInput.removeAttribute("placeholder");
-    passwordInput.setAttribute("aria-describedby", "password-hint");
-  } else {
-    passwordInput.placeholder = "Your password";
-    passwordInput.removeAttribute("aria-describedby");
-  }
+  passwordInput.placeholder = registering
+  ? "Create a password"
+  : "Enter your password";
 
   formIntro.after(status);
   status.textContent = message;
