@@ -1,18 +1,19 @@
 {
-  "name": "prjs5-backend",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "engines": {
-    "node": ">=22.12 <25"
+    "name": "prjs5-backend",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "engines": {
+      "node": ">=22.12 <25"
   },
   "scripts": {
-   "dev": "node --import tsx --watch src/server.ts",
-"build": "tsc",
-"start": "node dist/src/server.js",
-"check": "tsc --noEmit",
-"db:setup-auth": "node --import tsx scripts/setup-auth.ts",
-"db:setup-questions": "node --import tsx scripts/setup-questions.ts"
+    "dev": "node --import tsx --watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/src/server.js",
+    "check": "tsc --noEmit",
+    "db:migrate": "node --import tsx scripts/migrate.ts",
+    "db:setup-auth": "node --import tsx scripts/setup-auth.ts",
+    "db:setup-questions": "node --import tsx scripts/setup-questions.ts"
   },
   "dependencies": {
     "argon2": "^0.45.2",

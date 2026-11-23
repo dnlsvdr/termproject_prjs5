@@ -40,6 +40,9 @@
             placeholder="Enter your password"
             required
           />
+          <small id="password-hint" class="field-hint" hidden>
+            Use 12–128 characters.
+          </small>
 
           <button id="submit-button" class="primary" type="submit">
             Log in
@@ -63,11 +66,26 @@
             </div>
 
             <nav class="header-nav" aria-label="Main navigation">
-              <span>Questions</span>
-              <span>Ask</span>
-              <span>Drafts</span>
-              <span>Admin</span>
-              <span>About</span>
+              <button
+                type="button"
+                class="nav-tab"
+                data-tab="assistant"
+                aria-current="page"
+              >
+                Ask AI
+              </button>
+              <button type="button" class="nav-tab" data-tab="drafts">
+                Drafts
+              </button>
+              <button
+                type="button"
+                class="nav-tab"
+                data-tab="admin"
+                id="admin-nav-button"
+                hidden
+              >
+                Admin
+              </button>
             </nav>
 
             <div class="account">
@@ -81,6 +99,30 @@
             </div>
           </div>
         </header>
+
+        <div class="workspace-content">
+          <h1 id="workspace-title">Question Assistant</h1>
+          <p id="workspace-intro" class="muted"></p>
+
+          <section id="tab-assistant" class="panel workspace-panel">
+            <h2>AI Question Assistant</h2>
+            <p class="muted">
+              AI endpoint integration will be wired here next.
+            </p>
+          </section>
+
+          <section id="tab-drafts" class="panel workspace-panel" hidden>
+            <h2>Saved Drafts</h2>
+            <p class="muted">Your saved question drafts will appear here.</p>
+          </section>
+
+          <section id="tab-admin" class="panel workspace-panel" hidden>
+            <h2>Administrator Dashboard</h2>
+            <p class="muted">
+              Registered users and API usage metrics will appear here.
+            </p>
+          </section>
+        </div>
       </section>
     </main>
 
