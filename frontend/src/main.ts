@@ -10,9 +10,6 @@ import {
   requestAiAssist,
 } from "./api";
 import type { AiSuggestion, User } from "./api";
-import { loadAdminDashboard, resetAdminDashboard } from "./admin";
-import { ApiError, getCurrentUser, login, logout, register } from "./api";
-import type { User } from "./api";
 
 const authView = document.querySelector<HTMLElement>("#auth-view")!;
 const workspaceView = document.querySelector<HTMLElement>("#workspace-view")!;
@@ -53,6 +50,76 @@ const tabPanels: Record<string, HTMLElement> = {
 
 let mode: "login" | "register" = "login";
 let currentUser: User | null = null;
+
+interface AdminUserRecord {
+  id: string;
+  email: string;
+  role: "user" | "admin";
+  created_at?: string;
+}
+
+interface AdminStatsResponse {
+  totalCalls?: number;
+}
+
+function resetAdminDashboard() {
+  const adminPanel = tabPanels.admin;
+  if (!adminPanel) return;
+
+  adminPanel.replaceChildren();
+  const heading = document.createElement("h2");
+  heading.textContent = "Administrator Dashboard";
+  const subtitle = document.createElement("p");
+  subtitle.className = "muted";
+  subtitle.textContent =
+    "Registered users and API usage metrics will appear here.";
+  adminPanel.append(heading, subtitle);
+}
+
+async function loadAdminDashboard() {
+  const adminPanel = tabPanels.admin;
+  if (!adminPanel || currentUser?.role !== "admin") return;
+
+  adminPanel.replaceChildren();
+  const heading = document.createElement("h2");
+  heading.textContent = "Administrator Dashboard";
+  const info = document.createElement("p");
+  info.className = "muted";
+  info.textContent = "Loading registered users and API statistics…";
+  adminPanel.append(heading, info);
+
+  try {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    const [usersRes, statsRes] = await Promise.all([
+      fetch(`${baseUrl}/api/admin/users`, { credentials: "include" }),
+      fetch(`${baseUrl}/api/admin/stats`, { credentials: "include" }),
+    ]);
+
+    if (!usersRes.ok || !statsRes.ok) {
+      info.textContent =
+        "Admin API endpoints (/api/admin/users, /api/admin/stats) are not configured on the backend yet.";
+      return;
+    }
+
+    const usersData = (await usersRes.json()) as {
+      users?: AdminUserRecord[];
+    };
+    const statsData = (await statsRes.json()) as AdminStatsResponse;
+    const users = usersData.users ?? [];
+
+    info.textContent = `Total registered users: ${users.length} • Total API calls: ${statsData.totalCalls ?? 0}`;
+
+    const list = document.createElement("ul");
+    for (const u of users) {
+      const item = document.createElement("li");
+      item.textContent = `${u.email} (${u.role})`;
+      list.append(item);
+    }
+    adminPanel.append(list);
+  } catch {
+    info.textContent = "Could not load administrator data.";
+  }
+}
 
 function setActiveTab(tabName: "assistant" | "drafts" | "admin") {
   if (tabName === "admin" && currentUser?.role !== "admin") {

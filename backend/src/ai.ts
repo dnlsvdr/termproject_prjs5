@@ -1,9 +1,9 @@
-import { randomUUID } from "node:crypto";
 import { Router } from "express";
 import { rateLimit } from "express-rate-limit";
 import type { Pool, RowDataPacket } from "mysql2/promise";
 import { z } from "zod";
 import type { Config } from "./config.js";
+import { recordApiUsage } from "./api-usage.js";
 
 interface UsageCountRow extends RowDataPacket {
   total: number;
@@ -138,11 +138,7 @@ export function createAiRouter(pool: Pool, config: Config) {
       return;
     }
 
-    await pool.execute(
-      `INSERT INTO api_usage (id, user_id, endpoint, model)
-       VALUES (?, ?, ?, ?)`,
-      [randomUUID(), userId, "/api/ai/assist", config.AI_MODEL],
-    );
+await recordApiUsage(pool, userId, "/api/ai/assist", 200);
 
     const usageCount = await getUserUsageCount(pool, userId);
 
