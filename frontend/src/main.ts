@@ -22,6 +22,7 @@ const submitButton = document.querySelector<HTMLButtonElement>("#submit-button")
 const switchButton = document.querySelector<HTMLButtonElement>("#switch-mode")!;
 const logoutButton = document.querySelector<HTMLButtonElement>("#logout-button")!;
 const userEmail = document.querySelector<HTMLElement>("#user-email")!;
+const userRole = document.querySelector<HTMLElement>("#user-role")!;
 const status = document.querySelector<HTMLElement>("#status")!;
 
 const usageBadge = document.querySelector<HTMLElement>("#usage-badge")!;
@@ -118,7 +119,8 @@ function showWorkspace(user: User) {
 
   userEmail.textContent = user.email;
   userInitial.textContent = user.email.charAt(0).toUpperCase();
-  workspaceIntro.textContent = `Signed in as ${user.email} (${user.role}).`;
+  userRole.textContent = user.role === "admin" ? "Admin" : "User";
+workspaceIntro.textContent = "";
   adminNavButton.hidden = user.role !== "admin";
   passwordInput.value = "";
 
