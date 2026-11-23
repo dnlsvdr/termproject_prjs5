@@ -1,6 +1,15 @@
 import "./style.css";
-import { ApiError, getCurrentUser, login, logout, register } from "./api";
-import type { User } from "./api";
+import {
+  ApiError,
+  createDraft,
+  getAiUsage,
+  getCurrentUser,
+  login,
+  logout,
+  register,
+  requestAiAssist,
+} from "./api";
+import type { AiSuggestion, User } from "./api";
 
 const authView = document.querySelector<HTMLElement>("#auth-view")!;
 const workspaceView = document.querySelector<HTMLElement>("#workspace-view")!;
@@ -14,6 +23,18 @@ const switchButton = document.querySelector<HTMLButtonElement>("#switch-mode")!;
 const logoutButton = document.querySelector<HTMLButtonElement>("#logout-button")!;
 const userEmail = document.querySelector<HTMLElement>("#user-email")!;
 const status = document.querySelector<HTMLElement>("#status")!;
+
+const usageBadge = document.querySelector<HTMLElement>("#usage-badge")!;
+const aiForm = document.querySelector<HTMLFormElement>("#ai-form")!;
+const aiPromptInput = document.querySelector<HTMLTextAreaElement>("#ai-prompt")!;
+const aiSubmitButton = document.querySelector<HTMLButtonElement>("#ai-submit")!;
+const aiResult = document.querySelector<HTMLElement>("#ai-result")!;
+const aiSuggestedTitle = document.querySelector<HTMLElement>("#ai-suggested-title")!;
+const aiRefinedBody = document.querySelector<HTMLElement>("#ai-refined-body")!;
+const aiGuidance = document.querySelector<HTMLElement>("#ai-guidance")!;
+const saveDraftButton = document.querySelector<HTMLButtonElement>("#save-draft-button")!;
+
+let latestSuggestion: AiSuggestion | null = null;
 
 const formIntro = document.querySelector<HTMLElement>("#form-intro")!;
 const switchLabel = document.querySelector<HTMLElement>("#switch-label")!;
@@ -87,6 +108,10 @@ function showForm(nextMode: "login" | "register", message = "") {
 
 function showWorkspace(user: User) {
   currentUser = user;
+  latestSuggestion = null;
+  aiResult.hidden = true;
+  aiPromptInput.value = "";
+
   authView.hidden = true;
   workspaceView.hidden = false;
 
@@ -99,6 +124,14 @@ function showWorkspace(user: User) {
   setActiveTab("assistant");
   workspaceIntro.after(status);
   status.textContent = "";
+
+  void getAiUsage()
+    .then(({ usageCount }) => {
+      usageBadge.textContent = `API calls: ${usageCount}`;
+    })
+    .catch(() => {
+      usageBadge.textContent = "API calls: —";
+    });
 }
 
 function showError(error: unknown) {
@@ -144,6 +177,53 @@ form.addEventListener("submit", async (event) => {
   } finally {
     submitButton.disabled = false;
     switchButton.disabled = false;
+  }
+});
+
+aiForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const prompt = aiPromptInput.value.trim();
+  if (!prompt) return;
+
+  aiSubmitButton.disabled = true;
+  status.textContent = "Generating AI response…";
+
+  try {
+    const { suggestion, usageCount } = await requestAiAssist(prompt);
+    latestSuggestion = suggestion;
+
+    aiSuggestedTitle.textContent = suggestion.suggestedTitle;
+    aiRefinedBody.textContent = suggestion.refinedBody;
+    aiGuidance.textContent = suggestion.guidance;
+    usageBadge.textContent = `API calls: ${usageCount}`;
+
+    aiResult.hidden = false;
+    saveDraftButton.disabled = false;
+    saveDraftButton.textContent = "Save Refined Question to Drafts";
+    status.textContent = "";
+  } catch (error) {
+    showError(error);
+  } finally {
+    aiSubmitButton.disabled = false;
+  }
+});
+
+saveDraftButton.addEventListener("click", async () => {
+  if (!latestSuggestion) return;
+
+  saveDraftButton.disabled = true;
+
+  try {
+    await createDraft(
+      latestSuggestion.suggestedTitle,
+      latestSuggestion.refinedBody,
+    );
+    saveDraftButton.textContent = "Saved to Drafts";
+    status.textContent = "Refined question saved to your drafts.";
+  } catch (error) {
+    saveDraftButton.disabled = false;
+    showError(error);
   }
 });
 

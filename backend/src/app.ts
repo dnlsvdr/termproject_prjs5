@@ -7,6 +7,7 @@ import type { Pool } from "mysql2/promise";
 import type { Config } from "./config.js";
 import { createAuthRouter } from "./auth.js";
 import { createQuestionsRouter } from "./questions.js";
+import { createAiRouter } from "./ai.js";
 
 export async function createApp(pool: Pool, config: Config) {
   const app = express();
@@ -77,6 +78,12 @@ app.use(
   "/api/questions",
   auth.authenticate,
   createQuestionsRouter(pool),
+);
+
+app.use(
+  "/api/ai",
+  auth.authenticate,
+  createAiRouter(pool, config),
 );
 
   app.use((_req, res) => {

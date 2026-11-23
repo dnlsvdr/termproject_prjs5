@@ -104,11 +104,55 @@
           <h1 id="workspace-title">Question Assistant</h1>
           <p id="workspace-intro" class="muted"></p>
 
+          <!-- AI assistant -->
           <section id="tab-assistant" class="panel workspace-panel">
-            <h2>AI Question Assistant</h2>
-            <p class="muted">
-              AI endpoint integration will be wired here next.
-            </p>
+            <div class="panel-header">
+              <div>
+                <h2>AI Question Assistant</h2>
+                <p class="muted">
+                  Describe a problem or rough question to generate a polished Q&amp;A post and preliminary answer.
+                </p>
+              </div>
+              <span id="usage-badge" class="usage-badge">API calls: 0</span>
+            </div>
+
+            <form id="ai-form">
+              <label for="ai-prompt">Your rough question or topic</label>
+              <textarea
+                id="ai-prompt"
+                name="prompt"
+                rows="4"
+                minlength="5"
+                maxlength="2000"
+                placeholder="e.g. Why does my Express session cookie disappear when my frontend and backend are on different domains?"
+                required
+              ></textarea>
+
+              <button id="ai-submit" class="primary" type="submit">
+                Generate Question &amp; Answer
+              </button>
+            </form>
+
+            <div id="ai-result" class="ai-result" hidden>
+              <div class="result-block">
+                <span class="result-label">Suggested Title</span>
+                <h3 id="ai-suggested-title"></h3>
+              </div>
+
+              <div class="result-block">
+                <span class="result-label">Refined Question Body</span>
+                <p id="ai-refined-body" class="pre-wrap"></p>
+              </div>
+
+              <div class="result-block">
+                <span class="result-label">AI Guidance / Preliminary Answer</span>
+                <p id="ai-guidance" class="pre-wrap"></p>
+              </div>
+
+              <button id="save-draft-button" class="secondary" type="button">
+                Save Refined Question to Drafts
+              </button>
+            </div>
           </section>
 
           <section id="tab-drafts" class="panel workspace-panel" hidden>

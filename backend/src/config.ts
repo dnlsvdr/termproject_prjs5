@@ -48,6 +48,13 @@ COOKIE_PARTITIONED: z
   .transform((value) => value === "true"),
 
 TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(5).default(0),
+AI_API_BASE_URL: z
+    .url()
+    .default("https://generativelanguage.googleapis.com/v1beta/openai"),
+
+  AI_API_KEY: z.string().min(1),
+
+  AI_MODEL: z.string().min(1).default("gemini-2.5-flash"),
 });
 
 export function readConfig(

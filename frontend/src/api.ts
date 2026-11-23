@@ -11,6 +11,12 @@ interface Credentials {
   password: string;
 }
 
+export interface AiSuggestion {
+  suggestedTitle: string;
+  refinedBody: string;
+  guidance: string;
+}
+
 async function request<T>(
   path: string,
   body?: Record<string, string>,
@@ -96,5 +102,17 @@ export function deleteDraft(id: string) {
     `/api/questions/${encodeURIComponent(id)}`,
     {},
     "DELETE",
+  );
+}
+
+// AI assistant functions
+export function getAiUsage() {
+  return request<{ usageCount: number }>("/api/ai/usage");
+}
+
+export function requestAiAssist(prompt: string) {
+  return request<{ suggestion: AiSuggestion; usageCount: number }>(
+    "/api/ai/assist",
+    { prompt },
   );
 }

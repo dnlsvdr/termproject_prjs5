@@ -1,3 +1,4 @@
+-- users table
 CREATE TABLE IF NOT EXISTS users (
   id CHAR(36) PRIMARY KEY,
   email VARCHAR(254) NOT NULL UNIQUE,
@@ -6,6 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- sessions table
 CREATE TABLE IF NOT EXISTS sessions (
   id CHAR(36) PRIMARY KEY,
   user_id CHAR(36) NOT NULL,
@@ -17,6 +19,7 @@ CREATE TABLE IF NOT EXISTS sessions (
     ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- questions table
 CREATE TABLE IF NOT EXISTS questions (
   id CHAR(36) PRIMARY KEY,
   user_id CHAR(36) NOT NULL,
@@ -26,6 +29,19 @@ CREATE TABLE IF NOT EXISTS questions (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
     ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_questions_owner (user_id, created_at),
+  FOREIGN KEY (user_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- API table for AI assistant
+CREATE TABLE IF NOT EXISTS api_usage (
+  id CHAR(36) PRIMARY KEY,
+  user_id CHAR(36) NOT NULL,
+  endpoint VARCHAR(100) NOT NULL,
+  model VARCHAR(100) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_api_usage_user (user_id, created_at),
   FOREIGN KEY (user_id)
     REFERENCES users(id)
     ON DELETE CASCADE
